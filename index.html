@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>VARQ · Tu obra</title>
-<!-- "Puerta" del Estudio VARQ: le da a la página de obra un ícono propio en el celular.
-     La página de verdad sigue en Google (Apps Script); esto sólo la muestra en pantalla completa. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="VARQ">
@@ -25,19 +23,23 @@
 <body>
 <div id="espera"><img src="icon-192.png" alt="VARQ"><div>Abriendo tu obra…</div><a id="aparte" href="#">¿No abre? Tocá acá</a></div>
 <script>
-  // Dirección de la página (Implementar → Gestionar implementaciones → URL de la app web)
+  /* Puerta VARQ · versión 1.12 (24/11/2026)
+     En el celular muestra la página adentro (con el ícono VARQ).
+     En la computadora va directo a la página de Google: ahí el recuadro falla cuando Chrome tiene varias cuentas de Google. */
   var PAGINA = 'https://script.google.com/macros/s/AKfycbzdsF6Sv_PDOcH488_9Hhlfe9dubfIlRo9TBXy0Q77RECIkMVAM6eJoiEac6uNjQF3o0Q/exec';
-
-  // El link personal trae ?k=CLAVE. Se guarda acá por si el ícono se abre sin ella.
   var k = (location.search.match(/[?&]k=([A-Za-z0-9]+)/) || [])[1] || '';
   try { if (k) localStorage.setItem('varq_k', k); else k = localStorage.getItem('varq_k') || ''; } catch (e) {}
   var url = PAGINA + (k ? '?k=' + k : '');
   document.getElementById('aparte').href = url;
-
-  var f = document.createElement('iframe');
-  f.src = url; f.allow = 'clipboard-write; fullscreen';
-  f.onload = function () { document.getElementById('espera').style.display = 'none'; };
-  document.body.appendChild(f);
+  var celular = /Mobi|iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!celular) {
+    location.replace(url);
+  } else {
+    var f = document.createElement('iframe');
+    f.src = url; f.allow = 'clipboard-write; fullscreen';
+    f.onload = function () { document.getElementById('espera').style.display = 'none'; };
+    document.body.appendChild(f);
+  }
 </script>
 </body>
 </html>
