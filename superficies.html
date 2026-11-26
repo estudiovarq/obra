@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estudio VARQ · Superficies de tu proyecto</title>
+<style>
+  :root{
+    --bg:#f5f3ef; --card:#fff; --ink:#1f1d1a; --muted:#6f6a62; --line:#e4dfd6;
+    --accent:#2f5d50; --accent-soft:#e3ece8; --warn:#a4502a; --warn-soft:#f6e6dc;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,Segoe UI,Roboto,sans-serif;-webkit-text-size-adjust:100%}
+  body{padding-bottom:150px}
+  header{background:var(--ink);color:#fff;padding:18px 18px 14px}
+  .brand{font-weight:700;letter-spacing:.14em;font-size:13px}
+  .brand small{display:block;font-weight:400;letter-spacing:.04em;opacity:.7;font-size:12px;margin-top:2px}
+  .steps{display:flex;gap:6px;margin-top:14px}
+  .steps span{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
+  .steps span.on{background:#fff}
+  main{max-width:560px;margin:0 auto;padding:18px 14px}
+  h1{font-size:22px;margin:4px 0 6px;line-height:1.25}
+  p.lead{color:var(--muted);margin:0 0 16px;line-height:1.5;font-size:15px}
+  .screen{display:none}
+  .screen.on{display:block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+  label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+  input[type=text],input[type=number],input[type=tel]{width:100%;font:inherit;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+  .card.auto{background:var(--accent-soft);border-color:transparent}
+  .room{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s}
+  .room.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .room-head{display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+  .chk{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);flex:none;display:grid;place-items:center;transition:.15s}
+  .room.sel .chk{background:var(--accent);border-color:var(--accent)}
+  .chk svg{opacity:0}
+  .room.sel .chk svg{opacity:1}
+  .room-name{flex:1;font-weight:500;font-size:15px;line-height:1.3}
+  .room-m2{font-size:13px;color:var(--muted);white-space:nowrap}
+  .room.sel .room-m2{color:var(--accent);font-weight:600}
+  .room-body{display:none;padding:0 14px 14px;border-top:1px solid var(--line)}
+  .room.sel .room-body{display:block}
+  .dims{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;margin-top:12px}
+  .dims .x{padding-bottom:13px;color:var(--muted)}
+  .dims label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}
+  .etapa{display:flex;gap:6px;margin-top:12px;align-items:center}
+  .etapa > span{font-size:13px;color:var(--muted);margin-right:4px}
+  .chip{flex:1;font:inherit;font-size:14px;padding:10px 0;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .warn{display:none;margin-top:10px;font-size:13px;color:var(--warn);background:var(--warn-soft);padding:8px 10px;border-radius:8px}
+  .room.zero .warn{display:block}
+  .del{font:inherit;font-size:13px;color:var(--warn);background:none;border:none;padding:10px 0 0;cursor:pointer}
+  .add{width:100%;font:inherit;font-size:15px;padding:14px;border:1.5px dashed var(--muted);border-radius:var(--r);background:transparent;color:var(--ink);cursor:pointer;margin-top:4px}
+  .sec-title{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px;font-weight:600}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:5}
+  .bar-in{max-width:560px;margin:0 auto}
+  .tot{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:8px}
+  .tot b{color:var(--ink);font-size:15px}
+  .btns{display:flex;gap:8px}
+  .btn{flex:1;font:inherit;font-size:16px;font-weight:600;padding:14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;text-align:center;text-decoration:none;display:block}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;flex:2}
+  .btn.wa{background:#1f8f4e;border-color:#1f8f4e;color:#fff}
+  .btn[hidden]{display:none}
+  .sum-block{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+  .sum-block h3{margin:0 0 10px;font-size:16px}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:14px}
+  .row span:last-child{white-space:nowrap}
+  .row.big{font-weight:700;font-size:16px;border-top:1px solid var(--line);margin-top:6px;padding-top:10px}
+  .row.usd{color:var(--accent);font-weight:700}
+  .note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:8px}
+  .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .item:last-child{border-bottom:none}
+  .item .n{flex:1;line-height:1.3}
+  .item .n small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+  .edit{font:inherit;font-size:13px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:none;border-radius:8px;padding:8px 10px;cursor:pointer}
+  .empty{color:var(--muted);font-size:14px;padding:6px 0}
+  .done{display:none;background:var(--accent-soft);color:var(--accent);border-radius:var(--r);padding:14px;font-size:14px;line-height:1.5;margin-bottom:10px}
+  .done.on{display:block}
+  footer{text-align:center;font-size:11px;letter-spacing:.06em;color:var(--muted);padding:24px 14px 8px}
+  .resume{display:none;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;font-size:14px;margin-bottom:14px;line-height:1.45}
+  .resume.on{display:block}
+  .resume button{font:inherit;font-size:13px;background:none;border:none;color:var(--warn);padding:6px 0 0;cursor:pointer}
+  .flash{animation:fl 1.2s ease}
+  @keyframes fl{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 1px var(--accent) inset}}
+  .toast{position:fixed;left:50%;bottom:160px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">ESTUDIO VARQ<small>Arq. José Verellen · Tandil</small></div>
+  <div class="steps" id="steps"><span></span><span></span><span></span><span></span></div>
+</header>
+
+<main>
+  <!-- PASO 0 -->
+  <section class="screen" data-step="0">
+    <h1>Armemos la superficie de tu casa</h1>
+    <p class="lead">Elegí los ambientes que te gustaría tener y, si querés, ajustá sus medidas. La superficie se calcula sola. Te lleva unos 5 minutos y podés volver atrás cuando quieras.</p>
+    <div class="resume" id="resume">Retomamos lo que habías cargado la última vez.<br><button type="button" id="resetBtn">Empezar de cero</button></div>
+    <div class="card">
+      <label class="f" for="cliente" style="margin-top:0">Tu nombre</label>
+      <input type="text" id="cliente" placeholder="Nombre y apellido" autocomplete="name">
+    </div>
+    <div class="card" style="font-size:14px;line-height:1.55;color:var(--muted)">
+      <b style="color:var(--ink)">Cómo funciona</b><br>
+      1. Tocá los ambientes cubiertos que quieras.<br>
+      2. Después, galerías, cochera y otros semicubiertos.<br>
+      3. Si la obra va a hacerse en partes, elegí la etapa de cada ambiente.<br>
+      4. Revisás el resumen y lo enviás por WhatsApp.
+    </div>
+  </section>
+
+  <!-- PASO 1 -->
+  <section class="screen" data-step="1">
+    <h1>Ambientes cubiertos</h1>
+    <p class="lead">Tocá los que quieras. Las medidas son orientativas: cambialas solo si tenés algo en mente.</p>
+    <div class="card auto" id="pasCard">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <div><b style="font-size:15px">Pasillos y paredes</b><div class="note" style="margin-top:3px">Se suman solos: <span id="pasPct"></span> de pasillos y <span id="murPct"></span> de espesores de paredes, sobre los ambientes que elijas.</div></div>
+        <div class="room-m2" style="color:var(--accent);font-weight:600" id="pasM2">0,0 m²</div>
+      </div>
+    </div>
+    <div id="list-cub"></div>
+    <button type="button" class="add" data-add="cub">+ Agregar otro ambiente</button>
+  </section>
+
+  <!-- PASO 2 -->
+  <section class="screen" data-step="2">
+    <h1>Semicubiertos</h1>
+    <p class="lead">Galerías, cochera y espacios con techo pero abiertos. Computan la mitad de su superficie.</p>
+    <div id="list-semi"></div>
+    <button type="button" class="add" data-add="semi">+ Agregar otro espacio</button>
+  </section>
+
+  <!-- PASO 3 -->
+  <section class="screen" data-step="3">
+    <h1>Revisá tu resumen</h1>
+    <p class="lead">Si algo no te convence, tocá <b>Editar</b> y lo cambiás. Nada se envía hasta que aprietes el botón verde.</p>
+    <div class="done" id="done">¡Listo! Si querés cambiar algo, editalo y volvé a enviarlo: el estudio toma en cuenta el último envío.</div>
+    <div id="summary"></div>
+  </section>
+
+  <footer>ESTUDIO VARQ - VERELLEN JOSE - ARQUITECTO - MAT 29013</footer>
+</main>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="tot"><span>Superficie total estimada</span><b id="barTotal">0,00 m²</b></div>
+    <div class="btns">
+      <button type="button" class="btn" id="backBtn">Atrás</button>
+      <button type="button" class="btn pri" id="nextBtn">Empezar</button>
+      <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener" hidden>Enviar por WhatsApp</a>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== CONFIGURACIÓN DEL ESTUDIO ====== */
+const CONFIG = {
+  whatsapp: "5492494208166", // número del estudio (formato internacional, sin + ni espacios)
+  precioUSDm2: 1150,       // precio aproximado por m²
+  mostrarPresupuesto: true,// mostrar el presupuesto estimativo en USD al cliente
+  murosPct: 0.15,          // espesores de paredes: % sobre los ambientes cubiertos
+  pasillosPct: 0.15        // pasillos y circulaciones: % sobre los ambientes cubiertos
+};
+
+const BASE = {
+  cub: [
+    ["Hall de entrada",2,2],["Baño toilette",1.3,2],["Escalera",1.2,3],["Estar comedor",5,10],
+    ["Cocina comedor",5,5],["Despensa",1,2],["Lavadero",1.6,3],["Escritorio",3,3],
+    ["Sala de juegos",4,4],["Dormitorio chicos 1",3,3.6],["Dormitorio chicos 2",3,3.6],
+    ["Baño chicos",1.6,3],["Dormitorio principal",4,4],["Vestidor dormitorio principal",1.6,3],
+    ["Baño dormitorio principal",1.8,2.6],["Depósito",2,2],["Quincho con baño y cocina",5,18],
+    ["Baño exterior para pileta",1.2,2],["Oficina",3,4]
+  ],
+  semi: [
+    ["Galería principal",4,10],["Galería secundaria",3,6],["Galería acceso",2,2],["Galería quincho",3,10],
+    ["Entrepiso interior para depósito",0,0],["Estacionamiento autos",7,6],["Escalera exterior",0,0],
+    ["Veredas exteriores",0,0],["Pircas",0,0]
+  ]
+};
+
+const KEY = "varq-superficies-v3";
+let state, step = 0, sent = false;
+
+function fresh(){
+  const mk = (arr, t) => arr.map((r,i)=>({id:t+i, name:r[0], a:r[1], l:r[2], sel:false, etapa:1, custom:false}));
+  return {cliente:"", cub:mk(BASE.cub,"c"), semi:mk(BASE.semi,"s"), n:0};
+}
+function load(){
+  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.cub && s.semi) return s; }catch(e){}
+  return null;
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+const nf = (n,d=2)=> n.toLocaleString("es-AR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pctTxt = (x=CONFIG.pasillosPct)=> Math.round(x*100)+"%";
+const area = r => (+r.a||0)*(+r.l||0);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function calc(){
+  const e = {1:{cub:0,semi:0},2:{cub:0,semi:0},3:{cub:0,semi:0}};
+  state.cub.forEach(r=>{ if(r.sel) e[r.etapa].cub += area(r); });
+  state.semi.forEach(r=>{ if(r.sel) e[r.etapa].semi += area(r); });
+  let total = 0;
+  for(const k of [1,2,3]){
+    e[k].pas = e[k].cub*CONFIG.pasillosPct;
+    e[k].mur = e[k].cub*CONFIG.murosPct;
+    e[k].cubM = e[k].cub + e[k].mur + e[k].pas;
+    e[k].total = e[k].cubM + e[k].semi/2;
+    e[k].usd = e[k].total*CONFIG.precioUSDm2;
+    total += e[k].total;
+  }
+  return {e,total};
+}
+
+function roomHTML(r,t){
+  const m2 = area(r);
+  return `<div class="room ${r.sel?'sel':''} ${r.sel&&m2===0?'zero':''}" id="room-${r.id}" data-id="${r.id}" data-t="${t}">
+    <div class="room-head" data-act="toggle">
+      <div class="chk"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="room-name">${esc(r.name)||'<i style="color:var(--muted)">Ambiente nuevo</i>'}</div>
+      <div class="room-m2">${nf(m2,1)} m²</div>
+    </div>
+    <div class="room-body">
+      ${r.custom?`<label class="f">Nombre del ambiente</label><input type="text" data-f="name" value="${esc(r.name)}" placeholder="Ej: Gimnasio">`:''}
+      <div class="dims">
+        <div><label>Ancho (m)</label><input type="number" inputmode="decimal" step="0.1" min="0" data-f="a" value="${r.a||''}" placeholder="0"></div>
+        <div class="x">×</div>
+        <div><label>Largo (m)</label><input type="number" inputmode="decimal" step="0.1" min="0" data-f="l" value="${r.l||''}" placeholder="0"></div>
+      </div>
+      <div class="warn">Cargá ancho y largo para que se sume.</div>
+      <div class="etapa"><span>Etapa</span>
+        ${[1,2,3].map(n=>`<button type="button" class="chip ${r.etapa===n?'on':''}" data-act="etapa" data-n="${n}">${n}</button>`).join('')}
+      </div>
+      ${r.custom?`<button type="button" class="del" data-act="del">Quitar este ambiente</button>`:''}
+    </div>
+  </div>`;
+}
+
+function renderList(t){
+  document.getElementById("list-"+t).innerHTML = state[t].map(r=>roomHTML(r,t)).join("");
+}
+
+function refreshRoom(el, r){
+  const m2 = area(r);
+  el.querySelector(".room-m2").textContent = nf(m2,1)+" m²";
+  el.classList.toggle("zero", r.sel && m2===0);
+  if(r.custom) el.querySelector(".room-name").innerHTML = esc(r.name)||'<i style="color:var(--muted)">Ambiente nuevo</i>';
+}
+
+function find(t,id){ return state[t].find(r=>r.id===id); }
+
+function onListClick(ev){
+  const room = ev.target.closest(".room"); if(!room) return;
+  const act = ev.target.closest("[data-act]"); if(!act) return;
+  const t = room.dataset.t, r = find(t, room.dataset.id);
+  if(act.dataset.act==="toggle"){ r.sel=!r.sel; room.classList.toggle("sel", r.sel); refreshRoom(room,r); }
+  if(act.dataset.act==="etapa"){ r.etapa=+act.dataset.n; room.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on", +c.dataset.n===r.etapa)); }
+  if(act.dataset.act==="del"){ state[t]=state[t].filter(x=>x!==r); room.remove(); }
+  changed();
+}
+function onListInput(ev){
+  const room = ev.target.closest(".room"); if(!room||!ev.target.dataset.f) return;
+  const r = find(room.dataset.t, room.dataset.id), f = ev.target.dataset.f;
+  r[f] = f==="name" ? ev.target.value : ev.target.value.replace(",",".");
+  refreshRoom(room,r); changed();
+}
+
+let saveT;
+function changed(){
+  clearTimeout(saveT); saveT = setTimeout(save, 400);
+  const c = calc();
+  document.getElementById("barTotal").textContent = nf(c.total)+" m²";
+  document.getElementById("pasM2").textContent = "+"+nf([1,2,3].reduce((a,k)=>a+c.e[k].pas+c.e[k].mur,0),1)+" m²";
+  document.getElementById("pasPct").textContent = pctTxt();
+  document.getElementById("murPct").textContent = pctTxt(CONFIG.murosPct);
+  if(step===3) renderSummary();
+}
+
+function renderSummary(){
+  const {e,total} = calc();
+  const used = [1,2,3].filter(k=>e[k].total>0);
+  let h = "";
+  const etapaBlock = k => `<div class="sum-block"><h3>${used.length>1?`Etapa ${k}`:'Tu proyecto'}</h3>
+    <div class="row"><span>Ambientes cubiertos</span><span>${nf(e[k].cub)} m²</span></div>
+    <div class="row"><span>+ Espesores de paredes (${pctTxt(CONFIG.murosPct)})</span><span>${nf(e[k].mur)} m²</span></div>
+    <div class="row"><span>+ Pasillos y circulaciones (${pctTxt()})</span><span>${nf(e[k].pas)} m²</span></div>
+    <div class="row" style="font-weight:600"><span>Superficie cubierta</span><span>${nf(e[k].cubM)} m²</span></div>
+    <div class="row"><span>Semicubierta (${nf(e[k].semi)} m², computa 50%)</span><span>${nf(e[k].semi/2)} m²</span></div>
+    <div class="row big"><span>Superficie total</span><span>${nf(e[k].total)} m²</span></div>
+    ${CONFIG.mostrarPresupuesto?`<div class="row usd"><span>Costo de obra estimado</span><span>USD ${nf(e[k].usd,0)}</span></div>`:''}
+  </div>`;
+  if(!used.length) h += `<div class="sum-block"><div class="empty">Todavía no elegiste ningún ambiente.</div></div>`;
+  used.forEach(k=> h+=etapaBlock(k));
+  if(used.length>1){
+    h += `<div class="sum-block"><div class="row big" style="border:none;margin:0;padding-top:0"><span>Total todas las etapas</span><span>${nf(total)} m²</span></div>
+      ${CONFIG.mostrarPresupuesto?`<div class="row usd"><span>Costo de obra estimado</span><span>USD ${nf(total*CONFIG.precioUSDm2,0)}</span></div>`:''}</div>`;
+  }
+  if(CONFIG.mostrarPresupuesto && used.length) h += `<div class="note" style="margin:-2px 2px 12px">Valor orientativo calculado a USD ${nf(CONFIG.precioUSDm2,0)}/m². No es un presupuesto de obra.</div>`;
+
+  const items = (t,s)=>{
+    const sel = state[t].filter(r=>r.sel);
+    return `<div class="sum-block"><h3>${t==="cub"?"Ambientes cubiertos":"Semicubiertos"}</h3>
+      ${sel.length? sel.map(r=>`<div class="item"><div class="n">${esc(r.name||"Ambiente nuevo")}<small>${nf(+r.a||0)} × ${nf(+r.l||0)} m = ${nf(area(r))} m²${used.length>1||r.etapa>1?` · Etapa ${r.etapa}`:''}</small></div>
+        <button type="button" class="edit" data-edit="${r.id}" data-s="${s}">Editar</button></div>`).join("")
+        : `<div class="empty">Ninguno elegido.</div>`}
+      <button type="button" class="edit" style="margin-top:10px" data-goto="${s}">+ Agregar o quitar</button>
+    </div>`;
+  };
+  h += items("cub",1) + items("semi",2);
+  document.getElementById("summary").innerHTML = h;
+  document.getElementById("waBtn").href = waLink();
+}
+
+function message(){
+  const {e,total} = calc();
+  const used = [1,2,3].filter(k=>e[k].total>0);
+  let m = `*Superficies de proyecto – Estudio VARQ*\nCliente: ${state.cliente||"(sin nombre)"}\n`;
+  const list = (t,title)=>{
+    const sel = state[t].filter(r=>r.sel);
+    if(!sel.length) return "";
+    return `\n*${title}*\n` + sel.map(r=>`• ${r.name||"Ambiente nuevo"}: ${nf(+r.a||0)} x ${nf(+r.l||0)} = ${nf(area(r))} m²${used.length>1?` (E${r.etapa})`:''}`).join("\n") + "\n";
+  };
+  m += list("cub","Cubiertos") + list("semi","Semicubiertos");
+  used.forEach(k=>{
+    m += `\n*${used.length>1?`Etapa ${k}`:'Resumen'}*\nAmbientes cubiertos: ${nf(e[k].cub)} m²\n+ Paredes (${pctTxt(CONFIG.murosPct)}): ${nf(e[k].mur)} m²\n+ Pasillos (${pctTxt()}): ${nf(e[k].pas)} m²\nSuperficie cubierta: ${nf(e[k].cubM)} m²\nSemicubierta: ${nf(e[k].semi)} m² (computa ${nf(e[k].semi/2)})\nTotal: ${nf(e[k].total)} m²\n`;
+    if(CONFIG.mostrarPresupuesto) m += `Estimado: USD ${nf(e[k].usd,0)}\n`;
+  });
+  if(used.length>1) m += `\n*TOTAL: ${nf(total)} m²*\n`;
+  return m;
+}
+function waLink(){
+  const base = CONFIG.whatsapp ? `https://wa.me/${CONFIG.whatsapp}` : "https://wa.me/";
+  return `${base}?text=${encodeURIComponent(message())}`;
+}
+
+function go(n, focusId){
+  step = Math.max(0, Math.min(3, n));
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on", +s.dataset.step===step));
+  document.querySelectorAll("#steps span").forEach((s,i)=>s.classList.toggle("on", i<=step));
+  const back = document.getElementById("backBtn"), next = document.getElementById("nextBtn"), wa = document.getElementById("waBtn");
+  back.hidden = step===0;
+  next.hidden = step===3;
+  wa.hidden = step!==3;
+  next.textContent = step===0 ? "Empezar" : step===2 ? "Ver resumen" : "Siguiente";
+  if(step===3) renderSummary();
+  if(focusId){
+    const el = document.getElementById("room-"+focusId);
+    if(el){
+      setTimeout(()=>{ el.scrollIntoView({block:"center"}); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); },50);
+      return;
+    }
+  }
+  window.scrollTo(0,0);
+}
+
+function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.classList.add("on"); setTimeout(()=>el.classList.remove("on"),2200); }
+
+function init(){
+  const saved = load();
+  state = saved || fresh();
+  if(saved && (saved.cub.concat(saved.semi).some(r=>r.sel) || saved.cliente)) document.getElementById("resume").classList.add("on");
+  document.getElementById("cliente").value = state.cliente;
+  renderList("cub"); renderList("semi");
+  ["list-cub","list-semi"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener("click", onListClick);
+    el.addEventListener("input", onListInput);
+  });
+  document.getElementById("cliente").addEventListener("input", e=>{ state.cliente=e.target.value; changed(); });
+  document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>{
+    const t=b.dataset.add; state.n=(state.n||0)+1;
+    const r={id:"x"+t+state.n+"_"+Date.now()%100000, name:"", a:"", l:"", sel:true, etapa:1, custom:true};
+    state[t].push(r);
+    document.getElementById("list-"+t).insertAdjacentHTML("beforeend", roomHTML(r,t));
+    const el=document.getElementById("room-"+r.id); el.scrollIntoView({block:"center"});
+    setTimeout(()=>el.querySelector('input[data-f="name"]').focus(),300);
+    changed();
+  }));
+  document.getElementById("summary").addEventListener("click", e=>{
+    const ed=e.target.closest("[data-edit]"), gt=e.target.closest("[data-goto]");
+    if(ed) go(+ed.dataset.s, ed.dataset.edit);
+    if(gt) go(+gt.dataset.goto);
+  });
+  document.getElementById("nextBtn").addEventListener("click",()=>{
+    if(step===0 && !state.cliente.trim()){ document.getElementById("cliente").focus(); toast("Escribí tu nombre para empezar"); return; }
+    go(step+1);
+  });
+  document.getElementById("backBtn").addEventListener("click",()=>go(step-1));
+  document.getElementById("waBtn").addEventListener("click",(ev)=>{
+    if(calc().total===0){ ev.preventDefault(); toast("Elegí al menos un ambiente"); return; }
+    document.getElementById("waBtn").href = waLink();
+    document.getElementById("done").classList.add("on");
+  });
+  document.getElementById("resetBtn").addEventListener("click",()=>{
+    state=fresh(); save(); document.getElementById("cliente").value="";
+    renderList("cub"); renderList("semi"); changed();
+    document.getElementById("resume").classList.remove("on");
+  });
+  changed(); go(0);
+}
+init();
+window.addEventListener("pagehide", save);
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) save(); });
+</script>
+</body>
+</html>
